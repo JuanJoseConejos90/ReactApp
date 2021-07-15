@@ -34,6 +34,7 @@ const PosComponent = () => {
     const [selectedFilter, setSelectedFilter] = useState(product);
     const [sugProducts, setSugProducts] = useState<Product[]>([]);
     const [load, setload] = useState(false);
+    const [Total, setTotal] = useState(0);
     const toast: any = useRef(null);
     const productService = new ProductService();
     const posService = new PosService();
@@ -67,13 +68,15 @@ const PosComponent = () => {
                     const exist = pos.filter(x => x.cod === selectedFilter.cod);
                     if (exist.length === 0) {
                         let POS = new PostDto();
+                        let totalAmount = ((selectedFilter.price + selectedFilter.iva) * +cant);
                         POS.id = selectedFilter.id;
                         POS.cod = selectedFilter.cod;
                         POS.name = desc;
                         POS.iva = selectedFilter.iva;
                         POS.cant = cant;
                         POS.price = selectedFilter.price;
-                        POS.total = ((selectedFilter.price * +cant) + selectedFilter.iva);
+                        POS.total = totalAmount;
+                        setTotales(totalAmount);
                         setpost([...pos, POS]);
                         clearData();
                         toast.current.show({ severity: 'success', summary: 'Success', detail: 'Product Agregado' });
@@ -93,6 +96,17 @@ const PosComponent = () => {
         }
 
         setload(false);
+    }
+
+    const setTotales = (amount: number) => {
+
+        try {
+            let total = Total;
+            total += amount;
+            setTotal(total)
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const clearData = () => {
@@ -201,9 +215,10 @@ const PosComponent = () => {
     }
 
     const footer = (
-        <div className="table-footer">
+        <div className="p-d-flex p-ai-center p-py-2">
             <Button label="Save" icon="pi pi-plus" disabled={!pos || !pos.length} className="p-button-success p-mr-2" onClick={save} />
             <Button label="Print" icon="pi pi-file-pdf ml-auto" disabled={!pos || !pos.length} className="p-button-help" onClick={print} />
+            <Button type="button" className="p-button-text p-button-plain p-ml-auto" ><b>Total:{Total}</b></Button>
         </div>
     );
 

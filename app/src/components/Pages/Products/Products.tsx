@@ -20,6 +20,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Product, ListProduct } from "./../../../models/Product";
 import { ClassicSpinner } from "react-spinners-kit";
+import { SelectButton } from 'primereact/selectbutton';
 import './Products.css';
 
 const Products = () => {
@@ -35,9 +36,11 @@ const Products = () => {
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
     const [load, setload] = useState(false);
+    const [IVA, setIVA] = useState('No');
     const toast: any = useRef(null);
     const dt: any = useRef(null);
     const productService = new ProductService();
+    const optionsIVA = ['Si', 'No'];
 
 
     const cols = [
@@ -180,6 +183,7 @@ const Products = () => {
     }
 
     const editProduct = (product: Product) => {
+        product.iva > 0 ? setIVA("Si") : setIVA("No");
         setProduct({ ...product });
         setProductDialog(true);
     }
@@ -286,7 +290,7 @@ const Products = () => {
             </span>
         </div>
     );
-    
+
     const productDialogFooter = (
         <React.Fragment>
             <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} />
@@ -308,6 +312,40 @@ const Products = () => {
 
     const getProducts = () => {
         productService.getAllProducts().then(data => setProducts(data.data));
+    }
+
+    const outFocus = () => {
+
+        try {
+
+            if (IVA === "Si") {
+                product.iva = (product.price * 0.13);
+                product.total = (product.price + (product.price * 0.13));
+            } else {
+                product.iva = 0;
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const updatedIva = (event: any) => {
+        try {
+
+            setIVA(event.value);
+
+            if (event.value === "Si") {
+                product.iva = (product.price * 0.13);
+                product.total = (product.price + (product.price * 0.13));
+            } else {
+                product.iva = 0;
+                product.total = (product.price);
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     useEffect(() => {
@@ -359,18 +397,17 @@ const Products = () => {
                     </div>
 
                     <div className="p-formgrid p-grid">
+
+                        <div className="p-field p-col">
+                            <label htmlFor="IVA">IVA</label>
+                            <SelectButton value={IVA} options={optionsIVA} onChange={(event) => updatedIva(event)} />
+                        </div>
+
                         <div className="p-field p-col">
                             <label htmlFor="price">Price</label>
-                            <InputNumber id="price" name="price" value={product.price} onChange={(event) => onInputNumberChange(event)} mode="currency" currency="USD" locale="en-US" />
+                            <InputNumber id="price" name="price" onBlur={outFocus} value={product.price} onChange={(event) => onInputNumberChange(event)} mode="currency" currency="USD" locale="en-US" />
                         </div>
-                        <div className="p-field p-col">
-                            <label htmlFor="iva">IVA</label>
-                            <InputNumber id="iva" name="iva" value={product.iva} onChange={(event) => onInputNumberChange(event)} mode="currency" currency="USD" locale="en-US" />
-                        </div>
-                        <div className="p-field p-col">
-                            <label htmlFor="total">Total</label>
-                            <InputNumber id="total" name="total" value={product.total} onChange={(event) => onInputNumberChange(event)} mode="currency" currency="USD" locale="en-US" />
-                        </div>
+
                     </div>
                 </Dialog>
 
