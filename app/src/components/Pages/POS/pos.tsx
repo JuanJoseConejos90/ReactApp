@@ -103,7 +103,7 @@ const PosComponent = () => {
         try {
             let total = Total;
             total += amount;
-            setTotal(total)
+            setTotal(total);
         } catch (error) {
             console.log(error);
         }
@@ -149,6 +149,7 @@ const PosComponent = () => {
                             setTimeout(() => {
                                 setpost([]);
                                 clearData();
+                                setTotal(0);
                                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'POS Creado' });
                             }, 2000);
                         } else {
